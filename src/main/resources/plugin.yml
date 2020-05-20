@@ -31,35 +31,19 @@ author: AreiTharn
 version: 1.0.0
 description: This plugin allows customization of death penalties.
 load: POSTWORLD
-commands:
-    wc:
-        description: WeatherControl commands
-        usage: |
-               /<command> <info>
-               /<command> <help>
-               /<command> <set>
-        aliases: [weathercontrol]
+#commands:
+#    wc:
+#        description: WeatherControl commands
+#        usage: |
+#               /<command> <info>
+#               /<command> <help>
+#               /<command> <set>
+#        aliases: [weathercontrol]
 permissions:
-    wc.*:
+    cp.*:
         default: op
         children:
-            wc.cmd.*: true
-            wc.verbose: true
-    wc.cmd.*:
-        default: op
-        children:
-            wc.cmd.info: true
-            wc.cmd.help: true
-            wc.cmd.set: true
-    wc.cmd.info:
-        description: Outputs the content of config.yml.
-        default: op
-    wc.cmd.help:
-        description: Get help about the commands.
-        default: op
-    wc.cmd.set:
-        description: Controls the plugin settings.
-        default: op
+            cp.verbose: true
     wc.verbose:
-        description: Players with this permission will receive informations about weather events when verbose=true.
+        description: Players with this permission will receive informations about death events when verbose=true.
         default: op

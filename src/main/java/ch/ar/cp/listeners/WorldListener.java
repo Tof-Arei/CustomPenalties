@@ -27,47 +27,23 @@
  */
 package ch.ar.cp.listeners;
 
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 
 /**
  *
  * @author Arei
  */
-public class DeathListener implements Listener {
-    private FileConfiguration config;
-    
+public class WorldListener implements Listener {
     @EventHandler
-    public void onDeath(PlayerDeathEvent e) {
-        config = Bukkit.getServer().getPluginManager().getPlugin("WeatherControl").getConfig();
+    public void onLoad(WorldLoadEvent e) {
         
-        if (config.getBoolean("lose-exp")) {
-            loseExp(e.getEntity());
-        }
-        if (config.getBoolean("lose-backpack")) {
-            loseBackpack(e.getEntity());
-        }
-        if (config.getBoolean("lose-belt")) {
-            loseBelt(e.getEntity());
-        }
-        if (config.getBoolean("lose-equipment")) {
-            loseEquipment(e.getEntity());
-        } else {
-            lowerDurability(e.getEntity());
-        }
     }
     
-    private void loseExp(Entity player) {}
-    
-    private void loseBackpack(Entity player) {}
-    
-    private void loseBelt(Entity player) {}
-    
-    private void loseEquipment(Entity player) {}
-    
-    private void lowerDurability(Entity player) {}
+    @EventHandler
+    public void onUnload(WorldUnloadEvent e) {
+        
+    }
 }

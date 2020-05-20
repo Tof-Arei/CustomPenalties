@@ -47,6 +47,6 @@ lose-equipment: true
 # Exp penalty settings [0..100]%.
 exp-penalty: 100
 
-# Items durability penalty (when not lost on death) [0..100]%.
+# Items durability penalty (when equipment is not lost on death) [0..100]%.
 dura-penalty: 100
 item-break: true
