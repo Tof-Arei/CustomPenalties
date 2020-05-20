@@ -1,0 +1,65 @@
+#
+#                GLWT(Good Luck With That) Public License
+#                  Copyright (c) Everyone, except Author
+# 
+# Everyone is permitted to copy, distribute, modify, merge, sell, publish,
+# sublicense or whatever they want with this software but at their OWN RISK.
+# 
+#                             Preamble
+# 
+# The author has absolutely no clue what the code in this project does.
+# It might just work or not, there is no third option.
+# 
+# 
+#                 GOOD LUCK WITH THAT PUBLIC LICENSE
+#    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION, AND MODIFICATION
+# 
+#   0. You just DO WHATEVER YOU WANT TO as long as you NEVER LEAVE A
+# TRACE TO TRACK THE AUTHOR of the original product to blame for or hold
+# responsible.
+# 
+# IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+# 
+# Good luck and Godspeed.
+#
+main: ch.ar.wc.CustomPenalties
+name: CustomPenalties
+author: AreiTharn
+version: 1.0.0
+description: This plugin allows customization of death penalties.
+load: POSTWORLD
+commands:
+    wc:
+        description: WeatherControl commands
+        usage: |
+               /<command> <info>
+               /<command> <help>
+               /<command> <set>
+        aliases: [weathercontrol]
+permissions:
+    wc.*:
+        default: op
+        children:
+            wc.cmd.*: true
+            wc.verbose: true
+    wc.cmd.*:
+        default: op
+        children:
+            wc.cmd.info: true
+            wc.cmd.help: true
+            wc.cmd.set: true
+    wc.cmd.info:
+        description: Outputs the content of config.yml.
+        default: op
+    wc.cmd.help:
+        description: Get help about the commands.
+        default: op
+    wc.cmd.set:
+        description: Controls the plugin settings.
+        default: op
+    wc.verbose:
+        description: Players with this permission will receive informations about weather events when verbose=true.
+        default: op
