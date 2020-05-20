@@ -46,20 +46,24 @@ public class CustomPenalties extends JavaPlugin {
     
     private final FileConfiguration config = getConfig();
     
-
-    
     @Override
     public void onEnable() {
         instance = this;
         config();
         getServer().getPluginManager().registerEvents(new DeathListener(), this);
-        Logger.log(NAME + " version " + VERSION + " started successfully.\n"
-                + "Using custom weather : " + config.getBoolean("custom-weather"), Logger.Level.INFO);
+        Logger.log(NAME + " version " + VERSION + " started successfully.", Logger.Level.INFO);
     }
     
     private void config() {
         config.addDefault("verbose", false);
         config.addDefault("verbose-level", 0);
+        config.addDefault("lose-exp", true);
+        config.addDefault("lose-backpack", true);
+        config.addDefault("lose-belt", true);
+        config.addDefault("lose-equipment", true);
+        config.addDefault("exp-penalty", 100);
+        config.addDefault("dura-penalty", 100);
+        config.addDefault("item-break", true);
         
         saveDefaultConfig();
         reloadConfig();

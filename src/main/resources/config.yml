@@ -26,7 +26,7 @@
 # Good luck and Godspeed.
 #
 
-# General settings
+# General settings.
 # Verbose ? If true, console will log informations and users with wc.verbose permission will receive messages about WeatherEvents.
 verbose: false
 # The level of verbosity :
@@ -37,3 +37,16 @@ verbose: false
 # 4 : Errors + Warnings + Info + Death events + debug info.
 verbose-level: 0
 
+
+# Death penalties settings.
+lose-exp: true
+lose-backpack: true
+lose-belt: true
+lose-equipment: true
+
+# Exp penalty settings [0..100]%.
+exp-penalty: 100
+
+# Items durability penalty (when not lost on death) [0..100]%.
+dura-penalty: 100
+item-break: true

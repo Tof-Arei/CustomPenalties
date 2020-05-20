@@ -31,7 +31,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.weather.WeatherChangeEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 
 /**
  *
@@ -41,7 +41,7 @@ public class DeathListener implements Listener {
     private FileConfiguration config;
     
     @EventHandler
-    public void onRain(WeatherChangeEvent e) {
+    public void onDeath(PlayerDeathEvent e) {
         config = Bukkit.getServer().getPluginManager().getPlugin("WeatherControl").getConfig();
         
         
