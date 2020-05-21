@@ -63,7 +63,6 @@ public class DeathListener implements Listener {
             // Is player dying ?
             if (e.getDamage() >= player.getHealth() || player.getHealth() <= 0) {
                 // Register player current level, exp, total exp and inventory.
-                
                 hmPlayerLevel.put(player.getUniqueId(), player.getLevel());
                 hmPlayerExp.put(player.getUniqueId(), player.getExp());
                 hmPlayerTotalExp.put(player.getUniqueId(), player.getTotalExperience());
@@ -166,7 +165,6 @@ public class DeathListener implements Listener {
             newDura = (short) ((maxDura * config.getInt("dura-penalty")) / 100);
         } else if (config.getString("dura-method").equals("relative")) {
             newDura = (short) (currentDura + ((maxDura - currentDura) * config.getInt("dura-penalty")) / 100);
-            //newDura = (short) (item.getDurability() * config.getInt("dura-penalty") / 100);
         }
         
         if (!config.getBoolean("item-break") && newDura >= maxDura) {
