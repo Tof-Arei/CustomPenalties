@@ -29,10 +29,11 @@ package ch.ar.cp.listeners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 /**
  *
@@ -45,29 +46,71 @@ public class DeathListener implements Listener {
     public void onDeath(PlayerDeathEvent e) {
         config = Bukkit.getServer().getPluginManager().getPlugin("WeatherControl").getConfig();
         
+        // Overrides default death penalties settings.
+        e.setKeepInventory(true);
+        e.setKeepLevel(true);
+        
         if (config.getBoolean("lose-exp")) {
-            loseExp(e.getEntity());
+            loseExp(e);
         }
         if (config.getBoolean("lose-backpack")) {
-            loseBackpack(e.getEntity());
+            loseBackpack(e);
         }
         if (config.getBoolean("lose-belt")) {
-            loseBelt(e.getEntity());
+            loseBelt(e);
         }
         if (config.getBoolean("lose-equipment")) {
-            loseEquipment(e.getEntity());
+            loseEquipment(e);
         } else {
-            lowerDurability(e.getEntity());
+            lowerDurability(e);
         }
     }
     
-    private void loseExp(Entity player) {}
+    private void loseExp(PlayerDeathEvent e) {
+        int newExp = (int) (e.getEntity().getExp() * config.getInt("exp-penalty")) / 100;
+        int newTotalExp = (e.getEntity().getTotalExperience() * config.getInt("exp-penalty")) / 100;
+        int newLevel = (e.getEntity().getLevel() * config.getInt("exp-penalty")) / 100;
+        
+        e.setNewExp(newExp);
+        e.setNewTotalExp(newTotalExp);
+        e.setNewLevel(newLevel);
+    }
     
-    private void loseBackpack(Entity player) {}
+    private void loseBackpack(PlayerDeathEvent e) {
+        PlayerInventory inventory = e.getEntity().getInventory();
+        
+        for (int i = 8; i < inventory.getContents().length; i++) {
+            inventory.remove(inventory.getContents()[i]);
+        }
+    }
     
-    private void loseBelt(Entity player) {}
+    private void loseBelt(PlayerDeathEvent e) {
+        PlayerInventory inventory = e.getEntity().getInventory();
+        
+        for (int i = 0; i < 9; i++) {
+            inventory.remove(inventory.getContents()[i]);
+        }
+    }
     
-    private void loseEquipment(Entity player) {}
+    private void loseEquipment(PlayerDeathEvent e) {
+        PlayerInventory inventory = e.getEntity().getInventory();
+        
+        for (int i = 0; i < inventory.getArmorContents().length; i++) {
+            inventory.remove(inventory.getArmorContents()[i]);
+        }
+    }
     
-    private void lowerDurability(Entity player) {}
+    private void lowerDurability(PlayerDeathEvent e) {
+        PlayerInventory inventory = e.getEntity().getInventory();
+        
+        for (int i = 0; i < inventory.getArmorContents().length; i++) {
+            ItemStack item = inventory.getArmorContents()[i];
+            short newDura = (short) (item.getDurability() * config.getInt("dura-penalty") / 100);
+            if (!config.getBoolean("item-break") && newDura < 1) {
+                newDura = 1;
+            }
+            
+            item.setDurability(newDura);
+        }
+    }
 }
