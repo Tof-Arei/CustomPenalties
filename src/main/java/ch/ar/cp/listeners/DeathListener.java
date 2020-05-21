@@ -27,11 +27,19 @@
  */
 package ch.ar.cp.listeners;
 
+import ch.ar.cp.minecraft.env.ItemsUtils;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -41,17 +49,48 @@ import org.bukkit.inventory.PlayerInventory;
  */
 public class DeathListener implements Listener {
     private FileConfiguration config;
+    private final Map<UUID, Integer> hmPlayerLevel = new HashMap<>();
+    private final Map<UUID, Float> hmPlayerExp = new HashMap<>();
+    private final Map<UUID, Integer> hmPlayerTotalExp = new HashMap<>();
+    private final Map<UUID, PlayerInventory> hmPlayerInv = new HashMap<>();
+    
+    @EventHandler
+    private void onEntityDamage(EntityDamageEvent e) {
+        config = Bukkit.getServer().getPluginManager().getPlugin("CustomPenalties").getConfig();
+        
+        if (e.getEntity() instanceof Player) {
+            Player player = (Player) e.getEntity();
+            
+            // Is player dying ?
+            if (e.getDamage() >= player.getHealth() || player.getHealth() <= 0) {
+                // Register player current level, exp, total exp and inventory.
+                
+                hmPlayerLevel.put(player.getUniqueId(), player.getLevel());
+                hmPlayerExp.put(player.getUniqueId(), player.getExp());
+                hmPlayerTotalExp.put(player.getUniqueId(), player.getTotalExperience());
+                hmPlayerInv.put(player.getUniqueId(), player.getInventory());
+            }
+        }
+    }
     
     @EventHandler
     public void onDeath(PlayerDeathEvent e) {
-        config = Bukkit.getServer().getPluginManager().getPlugin("WeatherControl").getConfig();
+        config = Bukkit.getServer().getPluginManager().getPlugin("CustomPenalties").getConfig();
         
         // Overrides default death penalties settings.
         e.setKeepInventory(true);
         e.setKeepLevel(true);
         
+        dropExp(e);
+    }
+    
+    @EventHandler
+    public void onPlayerRespawn(PlayerRespawnEvent e) {
+        config = Bukkit.getServer().getPluginManager().getPlugin("CustomPenalties").getConfig();
+        
+        // Custom penalties handling.
         if (config.getBoolean("lose-exp")) {
-            loseExp(e);
+            loseExp(e.getPlayer());
         }
         if (config.getBoolean("lose-backpack")) {
             loseBackpack(e);
@@ -66,51 +105,75 @@ public class DeathListener implements Listener {
         }
     }
     
-    private void loseExp(PlayerDeathEvent e) {
-        int newExp = (int) (e.getEntity().getExp() * config.getInt("exp-penalty")) / 100;
-        int newTotalExp = (e.getEntity().getTotalExperience() * config.getInt("exp-penalty")) / 100;
-        int newLevel = (e.getEntity().getLevel() * config.getInt("exp-penalty")) / 100;
-        
-        e.setNewExp(newExp);
-        e.setNewTotalExp(newTotalExp);
-        e.setNewLevel(newLevel);
+    private void dropExp(PlayerDeathEvent e) {
+        int droppedExp = (hmPlayerTotalExp.get(e.getEntity().getUniqueId()) * config.getInt("exp-penalty")) / 100;
+        droppedExp += (hmPlayerExp.get(e.getEntity().getUniqueId()) * config.getInt("exp-penalty")) / 100;
+        e.setDroppedExp(droppedExp);
     }
     
-    private void loseBackpack(PlayerDeathEvent e) {
-        PlayerInventory inventory = e.getEntity().getInventory();
+    private void loseExp(Player player) {
+        int newLevel = (hmPlayerLevel.get(player.getUniqueId()) * config.getInt("exp-penalty")) / 100;
+        float newExp = (hmPlayerExp.get(player.getUniqueId()) * config.getInt("exp-penalty")) / 100;
+        int newTotalExp = (hmPlayerTotalExp.get(player.getUniqueId()) * config.getInt("exp-penalty")) / 100;
+        
+        player.setLevel(newLevel);
+        player.setExp(newExp);
+        player.setTotalExperience(newTotalExp);
+    }
+    
+    private void loseBackpack(PlayerRespawnEvent e) {
+        PlayerInventory inventory = hmPlayerInv.get(e.getPlayer().getUniqueId());
         
         for (int i = 8; i < inventory.getContents().length; i++) {
             inventory.remove(inventory.getContents()[i]);
         }
     }
     
-    private void loseBelt(PlayerDeathEvent e) {
-        PlayerInventory inventory = e.getEntity().getInventory();
+    private void loseBelt(PlayerRespawnEvent e) {
+        PlayerInventory inventory = hmPlayerInv.get(e.getPlayer().getUniqueId());
         
         for (int i = 0; i < 9; i++) {
             inventory.remove(inventory.getContents()[i]);
         }
     }
     
-    private void loseEquipment(PlayerDeathEvent e) {
-        PlayerInventory inventory = e.getEntity().getInventory();
+    private void loseEquipment(PlayerRespawnEvent e) {
+        PlayerInventory inventory = hmPlayerInv.get(e.getPlayer().getUniqueId());
         
         for (int i = 0; i < inventory.getArmorContents().length; i++) {
             inventory.remove(inventory.getArmorContents()[i]);
         }
     }
     
-    private void lowerDurability(PlayerDeathEvent e) {
-        PlayerInventory inventory = e.getEntity().getInventory();
+    private void lowerDurability(PlayerRespawnEvent e) {
+        PlayerInventory inventory = hmPlayerInv.get(e.getPlayer().getUniqueId());
         
         for (int i = 0; i < inventory.getArmorContents().length; i++) {
             ItemStack item = inventory.getArmorContents()[i];
-            short newDura = (short) (item.getDurability() * config.getInt("dura-penalty") / 100);
-            if (!config.getBoolean("item-break") && newDura < 1) {
-                newDura = 1;
-            }
-            
-            item.setDurability(newDura);
+            setNewDura(item);
         }
+        
+        for (int i = 0; i < inventory.getExtraContents().length; i++) {
+            ItemStack item = inventory.getExtraContents()[i];
+            if (ItemsUtils.isEquipment(item)) {
+                setNewDura(item);
+            }
+        }
+    }
+    
+    private void setNewDura(ItemStack item) {
+        short newDura = item.getDurability();
+        if (config.getString("dura-method").equals("absolute")) {
+            short maxDura = item.getType().getMaxDurability();
+            newDura = (short) (maxDura * config.getInt("dura-penalty") / 100);
+        } else if (config.getString("dura-method").equals("relative")) {
+            newDura = (short) (item.getDurability() * config.getInt("dura-penalty") / 100);
+        }
+        
+        if (!config.getBoolean("item-break") && newDura < 1) {
+            newDura = 1;
+        }
+
+        item.setDurability(newDura);
     }
 }

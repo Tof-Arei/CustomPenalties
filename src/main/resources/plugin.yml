@@ -25,7 +25,7 @@
 # 
 # Good luck and Godspeed.
 #
-main: ch.ar.wc.CustomPenalties
+main: ch.ar.cp.CustomPenalties
 name: CustomPenalties
 author: AreiTharn
 version: 1.0.0
@@ -44,6 +44,6 @@ permissions:
         default: op
         children:
             cp.verbose: true
-    wc.verbose:
+    cp.verbose:
         description: Players with this permission will receive informations about death events when verbose=true.
         default: op

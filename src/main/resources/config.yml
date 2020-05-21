@@ -47,6 +47,11 @@ lose-equipment: true
 # Exp penalty settings [0..100]%.
 exp-penalty: 100
 
+# Durability loss method :
+# - absolute : Loss is calculated from 100% durability.
+# - relative : Loss is calculated from the item remaining durability.
+dura-method: relative
 # Items durability penalty (when equipment is not lost on death) [0..100]%.
 dura-penalty: 100
+# Can items break if durability loss is higher than remainning durability ?
 item-break: true
