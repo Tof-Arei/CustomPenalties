@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -148,30 +147,30 @@ public class DeathListener implements Listener {
     private void lowerDurability(PlayerRespawnEvent e) {
         PlayerInventory inventory = hmPlayerInv.get(e.getPlayer().getUniqueId());
         
-        for (int i = 0; i < inventory.getArmorContents().length; i++) {
-            ItemStack item = inventory.getArmorContents()[i];
-            setNewDura(item);
-        }
-        
-        for (int i = 0; i < inventory.getExtraContents().length; i++) {
-            ItemStack item = inventory.getExtraContents()[i];
-            if (ItemsUtils.isEquipment(item)) {
-                setNewDura(item);
+        for (int i = 0; i < inventory.getContents().length; i++) {
+            ItemStack item = inventory.getContents()[i];
+            if (item != null) {
+                if (ItemsUtils.isEquipment(item)) {
+                    setNewDura(item);
+                }
             }
         }
     }
     
     private void setNewDura(ItemStack item) {
+        short maxDura = item.getType().getMaxDurability();
+        short currentDura = item.getDurability();
         short newDura = item.getDurability();
+        
         if (config.getString("dura-method").equals("absolute")) {
-            short maxDura = item.getType().getMaxDurability();
-            newDura = (short) (maxDura * config.getInt("dura-penalty") / 100);
+            newDura = (short) ((maxDura * config.getInt("dura-penalty")) / 100);
         } else if (config.getString("dura-method").equals("relative")) {
-            newDura = (short) (item.getDurability() * config.getInt("dura-penalty") / 100);
+            newDura = (short) (currentDura + ((maxDura - currentDura) * config.getInt("dura-penalty")) / 100);
+            //newDura = (short) (item.getDurability() * config.getInt("dura-penalty") / 100);
         }
         
-        if (!config.getBoolean("item-break") && newDura < 1) {
-            newDura = 1;
+        if (!config.getBoolean("item-break") && newDura >= maxDura) {
+            newDura = (short) (maxDura - 1);
         }
 
         item.setDurability(newDura);

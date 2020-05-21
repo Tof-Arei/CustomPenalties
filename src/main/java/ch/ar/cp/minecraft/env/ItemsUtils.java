@@ -27,8 +27,8 @@
  */
 package ch.ar.cp.minecraft.env;
 
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Repairable;
 
 /**
  *
@@ -36,20 +36,13 @@ import org.bukkit.inventory.meta.Repairable;
  */
 public class ItemsUtils {
     public static boolean isEquipment(ItemStack item) {
-        if (item instanceof Repairable) {
-            return true;
-        } else {
-            return false;
-        }
-    
-        /*ItemStack test = new ItemStack(item.getType());
+        ItemStack test = new ItemStack(item.getType());
         try {
-            test.addEnchantment(Enchantment.MENDING, 1);
-        }
-        catch(IllegalArgumentException e) {
+            test.addEnchantment(Enchantment.VANISHING_CURSE, 1);
+        } catch(IllegalArgumentException e) {
             return false;
         }
     
-        return true;*/
+        return true;
     }
 }
