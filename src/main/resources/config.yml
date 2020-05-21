@@ -27,7 +27,7 @@
 #
 
 # General settings.
-# Verbose ? If true, console will log informations and users with wc.verbose permission will receive messages about WeatherEvents.
+# Verbose ? If true, the console will log informations and users with cp.verbose permission will receive messages about death events.
 verbose: false
 # The level of verbosity :
 # 0 : Errors.
