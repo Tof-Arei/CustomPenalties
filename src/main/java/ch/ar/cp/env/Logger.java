@@ -63,7 +63,7 @@ public class Logger {
         ERROR(0, "ERR"),
         WARNING(1, "WRN"),
         INFO(2, "INFO"),
-        WCHANGE(3, "DEVT"),
+        DEVENT(3, "DEVT"),
         DEBUG(4, "DBG");
         
         private final int level;

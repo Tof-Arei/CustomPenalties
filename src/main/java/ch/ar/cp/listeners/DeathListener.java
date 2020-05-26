@@ -27,6 +27,7 @@
  */
 package ch.ar.cp.listeners;
 
+import ch.ar.cp.env.Logger;
 import ch.ar.cp.minecraft.env.ItemsUtils;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,6 +59,8 @@ public class DeathListener implements Listener {
         config = Bukkit.getServer().getPluginManager().getPlugin("CustomPenalties").getConfig();
         
         if (e.getEntity() instanceof Player) {
+            Logger.log(e.getEntity().getName() + " took " + e.getDamage() + " damage from " + e.getCause(), Logger.Level.DEBUG);
+            
             Player player = (Player) e.getEntity();
             
             // Is player dying ?
@@ -75,6 +78,8 @@ public class DeathListener implements Listener {
     public void onDeath(PlayerDeathEvent e) {
         config = Bukkit.getServer().getPluginManager().getPlugin("CustomPenalties").getConfig();
         
+        Logger.log(e.getEntity().getName() + " just died.", Logger.Level.DEVENT);
+        
         // Overrides default death penalties settings.
         e.setKeepInventory(true);
         e.setKeepLevel(true);
@@ -85,6 +90,8 @@ public class DeathListener implements Listener {
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent e) {
         config = Bukkit.getServer().getPluginManager().getPlugin("CustomPenalties").getConfig();
+        
+        Logger.log(e.getPlayer().getName() + " just respawned.", Logger.Level.DEBUG);
         
         // Custom penalties handling.
         if (config.getBoolean("lose-exp")) {
@@ -107,6 +114,8 @@ public class DeathListener implements Listener {
         int droppedExp = (hmPlayerTotalExp.get(e.getEntity().getUniqueId()) * config.getInt("exp-penalty")) / 100;
         droppedExp += (hmPlayerExp.get(e.getEntity().getUniqueId()) * config.getInt("exp-penalty")) / 100;
         e.setDroppedExp(droppedExp);
+        
+        Logger.log(e.getEntity().getName() + " dropped " + droppedExp + " exp.", Logger.Level.DEBUG);
     }
     
     private void loseExp(Player player) {
@@ -117,13 +126,19 @@ public class DeathListener implements Listener {
         player.setLevel(newLevel);
         player.setExp(newExp);
         player.setTotalExperience(newTotalExp);
+        
+        Logger.log(player.getName() + " new level : " + newLevel, Logger.Level.DEBUG);
+        Logger.log(player.getName() + " new exp : " + newExp, Logger.Level.DEBUG);
+        Logger.log(player.getName() + " new total exp : " + newTotalExp, Logger.Level.DEBUG);
     }
     
     private void loseBackpack(PlayerRespawnEvent e) {
         PlayerInventory inventory = hmPlayerInv.get(e.getPlayer().getUniqueId());
         
         for (int i = 8; i < inventory.getContents().length; i++) {
-            inventory.remove(inventory.getContents()[i]);
+            ItemStack item = inventory.getContents()[i];
+            inventory.remove(item);
+            Logger.log(e.getPlayer().getName() + " lost backpack item : " + item, Logger.Level.DEBUG);
         }
     }
     
@@ -131,7 +146,9 @@ public class DeathListener implements Listener {
         PlayerInventory inventory = hmPlayerInv.get(e.getPlayer().getUniqueId());
         
         for (int i = 0; i < 9; i++) {
-            inventory.remove(inventory.getContents()[i]);
+            ItemStack item = inventory.getContents()[i];
+            inventory.remove(item);
+            Logger.log(e.getPlayer().getName() + " lost belt item : " + item, Logger.Level.DEBUG);
         }
     }
     
@@ -139,7 +156,9 @@ public class DeathListener implements Listener {
         PlayerInventory inventory = hmPlayerInv.get(e.getPlayer().getUniqueId());
         
         for (int i = 0; i < inventory.getArmorContents().length; i++) {
-            inventory.remove(inventory.getArmorContents()[i]);
+            ItemStack equipment = inventory.getContents()[i];
+            inventory.remove(equipment);
+            Logger.log(e.getPlayer().getName() + " lost equipment : " + equipment, Logger.Level.DEBUG);
         }
     }
     
@@ -150,13 +169,13 @@ public class DeathListener implements Listener {
             ItemStack item = inventory.getContents()[i];
             if (item != null) {
                 if (ItemsUtils.isEquipment(item)) {
-                    setNewDura(item);
+                    setNewDura(e.getPlayer(), item);
                 }
             }
         }
     }
     
-    private void setNewDura(ItemStack item) {
+    private void setNewDura(Player player, ItemStack item) {
         short maxDura = item.getType().getMaxDurability();
         short currentDura = item.getDurability();
         short newDura = item.getDurability();
@@ -172,5 +191,6 @@ public class DeathListener implements Listener {
         }
 
         item.setDurability(newDura);
+        Logger.log(player.getName() + " item : " + item + " lost " + newDura + " durability.", Logger.Level.DEBUG);
     }
 }
